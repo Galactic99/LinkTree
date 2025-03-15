@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import connectDB from '@/app/lib/mongodb';
 import Linktree from '@/app/models/Linktree';
 
@@ -22,6 +24,9 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
+    // Get user session
+    const session = await getServerSession(authOptions);
+
     // Connect to database with timeout
     try {
       const dbPromise = connectDB();
@@ -34,24 +39,35 @@ export async function GET(
       );
     }
 
-    // Execute query with timeout
-    const queryPromise = Linktree.findOne({
-      slug: params.slug,
-      isPublic: true, // Only return public linktrees
-    }).populate('userId', 'name image').lean();
-    
-    const linktree = await withTimeout(queryPromise, 5000);
+    // Find the linktree
+    const linktree = await withTimeout(
+      Linktree.findOne({ slug: params.slug })
+        .populate('userId', 'name image')
+        .lean(),
+      5000
+    );
 
     if (!linktree) {
       return NextResponse.json(
-        { error: 'Linktree not found or is private' },
+        { error: 'Linktree not found' },
         { status: 404 }
       );
     }
 
+    // Check access permissions
+    if (!linktree.isPublic) {
+      // For private linktrees, check if user is logged in and owns the linktree
+      if (!session || session.user.id !== linktree.userId._id.toString()) {
+        return NextResponse.json(
+          { error: 'This linktree is private' },
+          { status: 403 }
+        );
+      }
+    }
+
     return NextResponse.json(linktree);
   } catch (error) {
-    console.error('Error fetching public linktree:', error);
+    console.error('Error fetching linktree:', error);
     
     // Determine error type
     if (error instanceof Error) {

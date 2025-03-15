@@ -287,10 +287,20 @@ function trackClick(linkId: string) {
         referrer: document.referrer,
       }),
     })
-    .then(response => response.json())
+    .then(async response => {
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to track click');
+      }
+      return response.json();
+    })
     .then(data => console.log('Analytics tracking response:', data))
-    .catch(err => console.error('Error tracking analytics:', err));
+    .catch(err => {
+      console.error('Error tracking analytics:', err);
+      // Don't block the user experience for analytics errors
+    });
   } catch (error) {
     console.error('Failed to track click:', error);
+    // Don't block the user experience for analytics errors
   }
 } 
