@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/lib/auth';
 import connectDB from '@/app/lib/mongodb';
 import Linktree from '@/app/models/Linktree';
 
@@ -22,12 +24,14 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = params;
+    // Get session with timeout
+    const sessionPromise = getServerSession(authOptions);
+    const session = await withTimeout(sessionPromise, 5000);
 
-    if (!slug) {
+    if (!session?.user?.id) {
       return NextResponse.json(
-        { error: 'Slug is required' },
-        { status: 400 }
+        { error: 'You must be logged in.' },
+        { status: 401 }
       );
     }
 
@@ -44,9 +48,10 @@ export async function GET(
     }
 
     // Execute query with timeout
-    const queryPromise = Linktree.findOne({ slug })
-      .populate('userId', 'name image')
-      .lean();
+    const queryPromise = Linktree.findOne({
+      slug: params.slug,
+      userId: session.user.id,
+    }).lean();
     
     const linktree = await withTimeout(queryPromise, 5000);
 
@@ -59,7 +64,7 @@ export async function GET(
 
     return NextResponse.json(linktree);
   } catch (error) {
-    console.error('Error fetching linktree by slug:', error);
+    console.error('Error fetching linktree:', error);
     
     // Determine error type
     if (error instanceof Error) {
