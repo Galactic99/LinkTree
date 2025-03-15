@@ -77,7 +77,7 @@ export default function Dashboard() {
           {linktrees.map((linktree) => (
             <Link
               key={linktree._id}
-              href={`/dashboard/${linktree._id}`}
+              href={`/dashboard/${linktree.slug}`}
               className="block backdrop-blur-lg bg-white/5 rounded-xl border border-white/10 shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-[1.02] hover:-translate-y-1"
             >
               <div className="p-6">

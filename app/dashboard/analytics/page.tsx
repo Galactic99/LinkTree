@@ -75,7 +75,7 @@ export default function AnalyticsDashboard() {
           try {
             // Fetch analytics for this linktree
             const analyticsResponse = await fetch(
-              `/api/analytics?linktreeId=${linktree._id}&startDate=${startDate.toISOString()}`
+              `/api/analytics?linktreeId=${linktree.slug}&startDate=${startDate.toISOString()}`
             );
             if (!analyticsResponse.ok) return null;
             const analyticsData: AnalyticsData[] = await analyticsResponse.json();
@@ -276,7 +276,7 @@ export default function AnalyticsDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                         <Link
-                          href={`/dashboard/analytics/${linktree._id}`}
+                          href={`/dashboard/analytics/${linktree.slug}`}
                           className="text-blue-500 hover:text-blue-400 font-medium"
                         >
                           View Details

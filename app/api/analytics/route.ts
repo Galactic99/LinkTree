@@ -62,10 +62,14 @@ export async function GET(request: Request) {
 
     await connectDB();
 
+    // Build query
+    const query: any = {};
+    
     // Verify the user owns this linktree
     if (linktreeId) {
+      // First try to find by slug
       const linktree = await Linktree.findOne({ 
-        _id: linktreeId,
+        slug: linktreeId,
         userId: session.user.id 
       });
       
@@ -75,13 +79,9 @@ export async function GET(request: Request) {
           { status: 404 }
         );
       }
-    }
-
-    // Build query
-    const query: any = {};
-    
-    if (linktreeId) {
-      query.linktreeId = linktreeId;
+      
+      // Use the actual _id for the query
+      query.linktreeId = linktree._id;
     } else {
       // If no specific linktree is requested, get all linktrees owned by the user
       const userLinktrees = await Linktree.find({ userId: session.user.id }).select('_id');
