@@ -287,14 +287,18 @@ function ShareButtons({ url, title }: { url: string, title: string }) {
 // Track click function
 function trackClick(linkId: string) {
   try {
-    fetch('/api/analytics/click', {
+    fetch('/api/analytics', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ linkId }),
+      body: JSON.stringify({
+        linktreeId: slug,
+        linkId,
+        referrer: document.referrer,
+      }),
     });
   } catch (error) {
-    console.error('Error tracking click:', error);
+    console.error('Failed to track click:', error);
   }
 } 

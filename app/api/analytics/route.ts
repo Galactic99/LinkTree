@@ -14,6 +14,17 @@ export async function POST(request: Request) {
     
     await connectDB();
 
+    // Find the linktree by slug
+    let actualLinktreeId = linktreeId;
+    
+    // Check if linktreeId is a slug and not a MongoDB ID
+    if (linktreeId && !linktreeId.match(/^[0-9a-fA-F]{24}$/)) {
+      const linktree = await Linktree.findOne({ slug: linktreeId });
+      if (linktree) {
+        actualLinktreeId = linktree._id;
+      }
+    }
+
     // Simple geolocation based on IP (in a real app, you'd use a proper geolocation service)
     let country = 'Unknown';
     let city = 'Unknown';
@@ -23,7 +34,7 @@ export async function POST(request: Request) {
     
     // Create analytics entry
     const analytics = await Analytics.create({
-      linktreeId,
+      linktreeId: actualLinktreeId,
       linkId,
       ip,
       userAgent,

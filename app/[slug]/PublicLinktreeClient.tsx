@@ -39,6 +39,7 @@ interface LinktreeData {
   userId: User;
   isPublic: boolean;
   footer?: string;
+  slug: string;
 }
 
 interface Props {
@@ -104,7 +105,7 @@ export default function PublicLinktreeClient({ linktree }: Props) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          linktreeId: linktree._id,
+          linktreeId: linktree.slug,
           linkId,
           referrer: document.referrer,
         }),
