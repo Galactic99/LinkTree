@@ -47,13 +47,16 @@ interface Props {
 
 const formatUsername = (name: string | undefined | null): string => {
   if (!name) return '';
-  try {
-    // Simple direct string manipulation without array methods
-    return name.split(' ').join('').toLowerCase();
-  } catch (error) {
-    console.error('Error formatting username:', error);
-    return name.toLowerCase();
+  
+  // Simple character-by-character approach to avoid complex string operations
+  let result = '';
+  for (let i = 0; i < name.length; i++) {
+    const char = name[i];
+    if (char !== ' ') {
+      result += char.toLowerCase();
+    }
   }
+  return result;
 };
 
 export default function PublicLinktreeClient({ linktree }: Props) {
