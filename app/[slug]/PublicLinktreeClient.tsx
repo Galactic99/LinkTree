@@ -222,8 +222,9 @@ export default function PublicLinktreeClient({ linktree }: Props) {
               >
                 {showEmbed ? 'Hide Embed Code' : 'Get Embed Code'}
               </button>
-              <ShareButtons url={pageUrl} title={linktree.title} />
             </div>
+
+            <ShareButtons url={pageUrl} title={linktree.title} />
 
             {showQR && (
               <div className="flex justify-center">

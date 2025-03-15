@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import ShareButtons from '@/app/components/ShareButtons';
 
 interface Link {
   _id: string;
@@ -61,7 +62,7 @@ export default function PublicLinktreeClientWrapper({ slug }: { slug: string }) 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
         
-        const response = await fetch(`/api/linktrees/${slug}`, {
+        const response = await fetch(`/api/public/linktrees/${slug}`, {
           signal: controller.signal
         });
         
@@ -267,19 +268,6 @@ function EmbedCode({ slug }: { slug: string }) {
         value={embedCode}
         onClick={(e) => (e.target as HTMLTextAreaElement).select()}
       />
-    </div>
-  );
-}
-
-function ShareButtons({ url, title }: { url: string, title: string }) {
-  return (
-    <div className="flex justify-center space-x-4">
-      <button className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">
-        Share
-      </button>
-      <button className="p-2 bg-green-600 text-white rounded-full hover:bg-green-700">
-        Tweet
-      </button>
     </div>
   );
 }
