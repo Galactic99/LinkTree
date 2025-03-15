@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { Menu, Transition } from '@headlessui/react';
 import { 
   UserCircleIcon,
+  ChartBarIcon,
   ChevronDownIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon 
@@ -28,6 +29,13 @@ export default function Navigation() {
           </div>
 
           <div className="flex items-center">
+            <Link 
+              href="/dashboard/analytics" 
+              className="mr-4 flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
+            >
+              <ChartBarIcon className="h-5 w-5" />
+              <span>Analytics</span>
+            </Link>
             {session?.user && (
               <Menu as="div" className="relative">
                 <Menu.Button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
