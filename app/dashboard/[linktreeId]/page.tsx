@@ -31,7 +31,13 @@ interface Linktree {
   links: Link[];
 }
 
-export default function EditLinktree({ params }: { params: { linktreeId: string } }) {
+interface PageProps {
+  params: {
+    linktreeId: string;
+  };
+}
+
+export default function EditLinktree({ params }: PageProps) {
   const router = useRouter();
   const [linktree, setLinktree] = useState<Linktree | null>(null);
   const [loading, setLoading] = useState(true);

@@ -94,11 +94,15 @@ async function getLinktree(slug: string): Promise<LinktreeData | null> {
   }
 }
 
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
+
 export default async function PublicLinktreePage({
   params,
-}: {
-  params: { slug: string };
-}) {
+}: PageProps) {
   try {
     const session = await getServerSession(authOptions);
     const linktree = await getLinktree(params.slug);

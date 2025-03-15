@@ -57,7 +57,13 @@ interface LinktreeData {
   slug: string;
 }
 
-export default function LinktreeAnalytics({ params }: { params: { linktreeId: string } }) {
+interface PageProps {
+  params: {
+    linktreeId: string;
+  };
+}
+
+export default function LinktreeAnalytics({ params }: PageProps) {
   const router = useRouter();
   const [analytics, setAnalytics] = useState<AnalyticsData[]>([]);
   const [linktree, setLinktree] = useState<LinktreeData | null>(null);
