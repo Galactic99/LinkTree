@@ -22,7 +22,7 @@ export default function ShareButtons({ url, title }: ShareButtonsProps) {
   };
   
   return (
-    <div className="flex space-x-3">
+    <div className="flex space-x-3 justify-center items-center mt-4">
       <button 
         onClick={handleCopyToClipboard}
         className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors flex items-center justify-center"
