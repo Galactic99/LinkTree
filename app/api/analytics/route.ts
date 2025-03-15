@@ -31,6 +31,10 @@ export async function POST(request: Request) {
         console.log('Found linktree with ID:', actualLinktreeId);
       } else {
         console.log('Linktree not found with slug:', linktreeId);
+        return NextResponse.json(
+          { error: 'Linktree not found' },
+          { status: 404 }
+        );
       }
     }
 

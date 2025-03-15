@@ -275,7 +275,8 @@ function EmbedCode({ slug }: { slug: string }) {
 // Track click function
 function trackClick(linkId: string) {
   try {
-    fetch('/api/analytics', {
+    console.log('Tracking click for link:', linkId);
+    fetch('/api/public/analytics', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -285,7 +286,10 @@ function trackClick(linkId: string) {
         linkId,
         referrer: document.referrer,
       }),
-    });
+    })
+    .then(response => response.json())
+    .then(data => console.log('Analytics tracking response:', data))
+    .catch(err => console.error('Error tracking analytics:', err));
   } catch (error) {
     console.error('Failed to track click:', error);
   }

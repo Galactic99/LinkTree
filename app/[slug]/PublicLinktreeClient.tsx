@@ -100,8 +100,8 @@ export default function PublicLinktreeClient({ linktree }: Props) {
 
       console.log('Tracking click for link:', linkId);
       
-      // Track regular analytics
-      const response = await fetch('/api/analytics', {
+      // Track regular analytics using the public endpoint
+      const response = await fetch('/api/public/analytics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
