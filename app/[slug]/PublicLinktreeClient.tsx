@@ -98,8 +98,10 @@ export default function PublicLinktreeClient({ linktree }: Props) {
         return;
       }
 
+      console.log('Tracking click for link:', linkId);
+      
       // Track regular analytics
-      await fetch('/api/analytics', {
+      const response = await fetch('/api/analytics', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,9 +112,13 @@ export default function PublicLinktreeClient({ linktree }: Props) {
           referrer: document.referrer,
         }),
       });
+      
+      const data = await response.json();
+      console.log('Analytics tracking response:', data);
 
       // Track A/B test metrics if applicable
       if (variantId) {
+        console.log('Tracking A/B test variant:', variantId);
         const test = abTests.get(linkId);
         if (test && test._id) {
           await fetch(`/api/ab-test-metrics/${test._id}`, {

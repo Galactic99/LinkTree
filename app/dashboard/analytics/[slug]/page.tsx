@@ -73,6 +73,8 @@ export default function LinktreeAnalytics({ params }: PageProps) {
       if (loading && lastUpdated) return; // Prevent multiple simultaneous fetches
       setLoading(true);
       
+      console.log('Fetching analytics data...');
+      
       // Calculate date range
       const endDate = new Date();
       let startDate = new Date();
@@ -85,18 +87,29 @@ export default function LinktreeAnalytics({ params }: PageProps) {
         startDate.setDate(endDate.getDate() - 90);
       }
       
+      console.log('Date range:', { startDate: startDate.toISOString(), endDate: endDate.toISOString() });
+      
       // Fetch linktree details
+      console.log('Fetching linktree details for slug:', params.slug);
       const linktreeResponse = await fetch(`/api/linktrees/${params.slug}`);
-      if (!linktreeResponse.ok) throw new Error('Failed to fetch Linktree');
+      if (!linktreeResponse.ok) {
+        console.error('Failed to fetch linktree:', await linktreeResponse.text());
+        throw new Error('Failed to fetch Linktree');
+      }
       const linktreeData = await linktreeResponse.json();
+      console.log('Linktree data:', linktreeData);
       setLinktree(linktreeData);
       
       // Fetch analytics data
-      const analyticsResponse = await fetch(
-        `/api/analytics?linktreeId=${params.slug}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`
-      );
-      if (!analyticsResponse.ok) throw new Error('Failed to fetch analytics');
+      const analyticsUrl = `/api/analytics?linktreeId=${params.slug}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+      console.log('Fetching analytics from:', analyticsUrl);
+      const analyticsResponse = await fetch(analyticsUrl);
+      if (!analyticsResponse.ok) {
+        console.error('Failed to fetch analytics:', await analyticsResponse.text());
+        throw new Error('Failed to fetch analytics');
+      }
       const analyticsData = await analyticsResponse.json();
+      console.log('Analytics data received:', analyticsData.length, 'records');
       setAnalytics(analyticsData);
       
       setLastUpdated(new Date());
