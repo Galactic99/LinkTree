@@ -52,6 +52,35 @@ export default function PublicLinktreeClientWrapper({ slug }: { slug: string }) 
   const [showQR, setShowQR] = useState(false);
   const [showEmbed, setShowEmbed] = useState(false);
 
+  // Track click function
+  const trackClick = async (linkId: string) => {
+    try {
+      console.log('Tracking click for link:', linkId);
+      const response = await fetch('/api/public/analytics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          linktreeId: slug,
+          linkId,
+          referrer: document.referrer,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to track click');
+      }
+
+      const data = await response.json();
+      console.log('Analytics tracking response:', data);
+    } catch (error) {
+      console.error('Failed to track click:', error);
+      // Don't block the user experience for analytics errors
+    }
+  };
+
   useEffect(() => {
     const fetchLinktree = async () => {
       try {
@@ -243,8 +272,8 @@ export default function PublicLinktreeClientWrapper({ slug }: { slug: string }) 
   );
 }
 
-// Placeholder components - replace with your actual components
-function QRCode({ url }: { url: string }) {
+// Replace the placeholder components with proper implementations
+const QRCode = ({ url }: { url: string }) => {
   return (
     <div className="text-center">
       <p className="text-black mb-2">Scan this QR code:</p>
@@ -253,9 +282,9 @@ function QRCode({ url }: { url: string }) {
       </div>
     </div>
   );
-}
+};
 
-function EmbedCode({ slug }: { slug: string }) {
+const EmbedCode = ({ slug }: { slug: string }) => {
   const embedCode = `<iframe src="${window.location.origin}/${slug}" width="100%" height="600" frameborder="0"></iframe>`;
   
   return (
@@ -270,37 +299,4 @@ function EmbedCode({ slug }: { slug: string }) {
       />
     </div>
   );
-}
-
-// Track click function
-function trackClick(linkId: string) {
-  try {
-    console.log('Tracking click for link:', linkId);
-    fetch('/api/public/analytics', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        linktreeId: slug,
-        linkId,
-        referrer: document.referrer,
-      }),
-    })
-    .then(async response => {
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to track click');
-      }
-      return response.json();
-    })
-    .then(data => console.log('Analytics tracking response:', data))
-    .catch(err => {
-      console.error('Error tracking analytics:', err);
-      // Don't block the user experience for analytics errors
-    });
-  } catch (error) {
-    console.error('Failed to track click:', error);
-    // Don't block the user experience for analytics errors
-  }
-} 
+}; 
