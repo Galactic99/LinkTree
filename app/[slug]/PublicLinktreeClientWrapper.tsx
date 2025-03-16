@@ -257,18 +257,6 @@ export default function PublicLinktreeClientWrapper({ slug }: { slug: string }) 
             ))}
         </div>
         
-        {/* Create Your Own Button (for non-registered users) */}
-        {!session && (
-          <div className="mt-8 text-center">
-            <a
-              href="/auth/signin"
-              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105"
-            >
-              Create Your Own Linktree
-            </a>
-          </div>
-        )}
-        
         {/* Footer */}
         {linktree.footer && (
           <div className="mt-8 text-center">
@@ -282,6 +270,18 @@ export default function PublicLinktreeClientWrapper({ slug }: { slug: string }) 
         <div className="mt-8">
           <ShareButtons url={`${window.location.origin}/${slug}`} title={linktree.title} />
         </div>
+        
+        {/* Create Your Own Button (for non-registered users) */}
+        {!session && (
+          <div className="mt-12 text-center">
+            <a
+              href="/auth/signin"
+              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105"
+            >
+              Create Your Own Linktree
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
