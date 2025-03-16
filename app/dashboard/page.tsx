@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface Linktree {
   _id: string;
@@ -18,6 +18,7 @@ export default function Dashboard() {
   const { data: session } = useSession();
   const [linktrees, setLinktrees] = useState<Linktree[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLinktrees = async () => {
@@ -34,6 +35,34 @@ export default function Dashboard() {
 
     fetchLinktrees();
   }, []);
+
+  const handleDeleteLinktree = async (e: React.MouseEvent, slug: string, id: string) => {
+    e.preventDefault(); // Prevent navigation to the edit page
+    e.stopPropagation(); // Stop event propagation
+    
+    if (!confirm('Are you sure you want to delete this linktree? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setDeletingId(id);
+      const response = await fetch(`/api/linktrees/${slug}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete linktree');
+      }
+
+      // Remove the deleted linktree from the state
+      setLinktrees(linktrees.filter(lt => lt._id !== id));
+    } catch (error) {
+      console.error('Error deleting linktree:', error);
+      alert('Failed to delete linktree. Please try again.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -75,12 +104,14 @@ export default function Dashboard() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {linktrees.map((linktree) => (
-            <Link
+            <div
               key={linktree._id}
-              href={`/dashboard/${linktree.slug}`}
-              className="block backdrop-blur-lg bg-white/5 rounded-xl border border-white/10 shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-[1.02] hover:-translate-y-1"
+              className="relative backdrop-blur-lg bg-white/5 rounded-xl border border-white/10 shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-[1.02] hover:-translate-y-1"
             >
-              <div className="p-6">
+              <Link
+                href={`/dashboard/${linktree.slug}`}
+                className="block p-6"
+              >
                 <h3 className="text-lg font-medium text-white">
                   {linktree.title}
                 </h3>
@@ -97,8 +128,16 @@ export default function Dashboard() {
                     </span>
                   )}
                 </div>
-              </div>
-            </Link>
+              </Link>
+              <button
+                onClick={(e) => handleDeleteLinktree(e, linktree.slug, linktree._id)}
+                disabled={deletingId === linktree._id}
+                className="absolute top-2 right-2 p-2 rounded-full bg-red-600/20 hover:bg-red-600/40 text-red-400 hover:text-red-300 transition-colors"
+                title="Delete Linktree"
+              >
+                <TrashIcon className="h-4 w-4" />
+              </button>
+            </div>
           ))}
         </div>
       )}

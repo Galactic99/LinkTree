@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { PencilIcon, TrashIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { useRouter } from 'next/navigation';
 
 interface Link {
   _id: string;
@@ -33,6 +34,7 @@ interface PageProps {
 }
 
 export default function EditLinktree({ params }: PageProps) {
+  const router = useRouter();
   const { data: session } = useSession();
   const [linktree, setLinktree] = useState<Linktree | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,6 +46,7 @@ export default function EditLinktree({ params }: PageProps) {
     enabled: true,
   });
   const formRef = useRef<HTMLFormElement>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchLinktree();
@@ -193,6 +196,30 @@ export default function EditLinktree({ params }: PageProps) {
     }
   };
 
+  const handleDeleteLinktree = async () => {
+    if (!confirm('Are you sure you want to delete this entire linktree? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      const response = await fetch(`/api/linktrees/${params.slug}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete linktree');
+      }
+
+      // Redirect to dashboard after successful deletion
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error deleting linktree:', error);
+      setError('Failed to delete linktree. Please try again.');
+      setIsDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -223,14 +250,24 @@ export default function EditLinktree({ params }: PageProps) {
         <h1 className="text-2xl font-semibold text-white">
           Edit Linktree: {linktree.title}
         </h1>
-        <Link
-          href={`/${linktree.slug}`}
-          target="_blank"
-          className="inline-flex items-center px-4 py-2 rounded-lg backdrop-blur-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all duration-200 transform hover:scale-105"
-        >
-          <EyeIcon className="h-5 w-5 mr-2" />
-          View Live
-        </Link>
+        <div className="flex space-x-3">
+          <button
+            onClick={handleDeleteLinktree}
+            disabled={isDeleting}
+            className="inline-flex items-center px-4 py-2 rounded-lg backdrop-blur-md bg-red-600 hover:bg-red-700 text-white font-medium transition-all duration-200"
+          >
+            <TrashIcon className="h-5 w-5 mr-2" />
+            {isDeleting ? 'Deleting...' : 'Delete Linktree'}
+          </button>
+          <Link
+            href={`/${linktree.slug}`}
+            target="_blank"
+            className="inline-flex items-center px-4 py-2 rounded-lg backdrop-blur-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all duration-200 transform hover:scale-105"
+          >
+            <EyeIcon className="h-5 w-5 mr-2" />
+            View Live
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
