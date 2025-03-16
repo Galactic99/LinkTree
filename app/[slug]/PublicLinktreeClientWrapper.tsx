@@ -26,7 +26,8 @@ interface LinktreeData {
   links: Link[];
   userId: User;
   isPublic: boolean;
-  footer?: string;
+  footer: string;
+  slug: string;
 }
 
 // Optimized username formatting function
@@ -256,10 +257,24 @@ export default function PublicLinktreeClientWrapper({ slug }: { slug: string }) 
             ))}
         </div>
         
+        {/* Create Your Own Button (for non-registered users) */}
+        {!session && (
+          <div className="mt-8 text-center">
+            <a
+              href="/auth/signin"
+              className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105"
+            >
+              Create Your Own Linktree
+            </a>
+          </div>
+        )}
+        
         {/* Footer */}
         {linktree.footer && (
-          <div className="mt-8 text-center text-sm opacity-70">
-            {linktree.footer}
+          <div className="mt-8 text-center">
+            <p className={`text-sm ${linktree.theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+              {linktree.footer}
+            </p>
           </div>
         )}
         
