@@ -81,4 +81,86 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: { slug: string } }
+) {
+  try {
+    // Get session with timeout
+    const sessionPromise = getServerSession(authOptions);
+    const session = await withTimeout(sessionPromise, 5000);
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'You must be logged in.' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { title, theme, isDefault, isPublic, footer } = body;
+
+    // Connect to database with timeout
+    try {
+      const dbPromise = connectDB();
+      await withTimeout(dbPromise, 5000);
+    } catch (dbError) {
+      console.error('MongoDB connection error:', dbError);
+      return NextResponse.json(
+        { error: 'Database connection failed. Please try again later.' },
+        { status: 503 }
+      );
+    }
+
+    // Find the linktree
+    const linktree = await Linktree.findOne({
+      slug: params.slug,
+      userId: session.user.id,
+    });
+
+    if (!linktree) {
+      return NextResponse.json(
+        { error: 'Linktree not found' },
+        { status: 404 }
+      );
+    }
+
+    // Update fields if provided
+    if (title !== undefined) linktree.title = title;
+    if (theme !== undefined) linktree.theme = theme;
+    if (isPublic !== undefined) linktree.isPublic = isPublic;
+    if (footer !== undefined) linktree.footer = footer;
+
+    // If setting as default, unset any existing default
+    if (isDefault) {
+      await Linktree.updateMany(
+        { userId: session.user.id, isDefault: true, _id: { $ne: linktree._id } },
+        { isDefault: false }
+      );
+      linktree.isDefault = true;
+    }
+
+    await linktree.save();
+
+    return NextResponse.json(linktree);
+  } catch (error) {
+    console.error('Error updating linktree:', error);
+    
+    // Determine error type
+    if (error instanceof Error) {
+      if (error.message.includes('timed out')) {
+        return NextResponse.json(
+          { error: 'Request timed out. Please try again later.' },
+          { status: 504 }
+        );
+      }
+    }
+    
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 } 

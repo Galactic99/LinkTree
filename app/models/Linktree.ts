@@ -16,7 +16,7 @@ const linktreeSchema = new mongoose.Schema(
     theme: { type: String, default: 'light' },
     isDefault: { type: Boolean, default: false },
     isPublic: { type: Boolean, default: true },
-    footer: { type: String, default: 'Made with ❤️ using Next.js and Tailwind CSS' },
+    footer: { type: String, default: '' },
     links: [linkSchema],
   },
   { timestamps: true }

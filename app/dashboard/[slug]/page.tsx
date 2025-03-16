@@ -21,6 +21,8 @@ interface Linktree {
   slug: string;
   theme: string;
   isDefault: boolean;
+  isPublic: boolean;
+  footer: string;
   links: Link[];
 }
 
@@ -303,6 +305,50 @@ export default function EditLinktree({ params }: PageProps) {
                 </Droppable>
               </DragDropContext>
             )}
+          </div>
+
+          <div className="backdrop-blur-lg bg-white/5 rounded-xl border border-white/10 shadow-xl p-6 mt-6">
+            <h2 className="text-xl font-medium text-white mb-4">Settings</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="footer" className="block text-sm font-medium text-white">
+                  Footer Text
+                </label>
+                <input
+                  type="text"
+                  id="footer"
+                  name="footer"
+                  value={linktree.footer || ''}
+                  onChange={async (e) => {
+                    try {
+                      const response = await fetch(`/api/linktrees/${params.slug}`, {
+                        method: 'PATCH',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ footer: e.target.value }),
+                      });
+
+                      if (!response.ok) {
+                        throw new Error('Failed to update footer');
+                      }
+
+                      const updatedLinktree = await response.json();
+                      setLinktree(updatedLinktree);
+                    } catch (error) {
+                      console.error('Error updating footer:', error);
+                      setError('Failed to update footer. Please try again.');
+                    }
+                  }}
+                  className="mt-1 block w-full rounded-md border border-gray-700 bg-gray-800 text-white py-2 px-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="Add your custom footer text"
+                />
+                <p className="mt-1 text-sm text-gray-400">
+                  Leave empty to remove footer
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

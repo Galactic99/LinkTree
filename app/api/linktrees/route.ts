@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, slug, theme, isDefault } = body;
+    const { title, slug, theme, isDefault, isPublic, footer } = body;
 
     // Validate required fields
     if (!title || !slug) {
@@ -141,6 +141,8 @@ export async function POST(request: Request) {
       slug,
       theme: theme || 'light',
       isDefault,
+      isPublic: isPublic !== undefined ? isPublic : true,
+      footer: footer || '',
       links: [],
     });
 

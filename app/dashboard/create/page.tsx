@@ -39,8 +39,9 @@ export default function CreateLinktree() {
       }
 
       const linktree = await response.json();
-      router.push(`/dashboard/${linktree._id}`);
+      router.push(`/dashboard/${linktree.slug}`);
     } catch (err) {
+      console.error('Error creating linktree:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
