@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import ShareButtons from '@/app/components/ShareButtons';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface Link {
   _id: string;
@@ -200,33 +201,46 @@ export default function PublicLinktreeClientWrapper({ slug }: { slug: string }) 
             </p>
           )}
           
-          {/* QR Code and Embed Buttons */}
-          <div className="flex space-x-2 mt-2">
+          {/* QR Code Button */}
+          <div className="mt-4">
             <button
               onClick={() => setShowQR(!showQR)}
-              className="px-3 py-1 text-sm bg-gray-700 text-white rounded hover:bg-gray-600"
+              className="px-4 py-2 text-sm bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
             >
-              {showQR ? 'Hide QR' : 'Show QR'}
-            </button>
-            <button
-              onClick={() => setShowEmbed(!showEmbed)}
-              className="px-3 py-1 text-sm bg-gray-700 text-white rounded hover:bg-gray-600"
-            >
-              {showEmbed ? 'Hide Embed' : 'Embed'}
+              {showQR ? 'Hide QR Code' : 'Show QR Code'}
             </button>
           </div>
           
           {/* QR Code Display */}
           {showQR && (
             <div className="mt-4 p-4 bg-white rounded-lg">
-              <QRCode url={`${window.location.origin}/${slug}`} />
-            </div>
-          )}
-          
-          {/* Embed Code Display */}
-          {showEmbed && (
-            <div className="mt-4 w-full">
-              <EmbedCode slug={slug} />
+              <div className="text-center">
+                <p className="text-black mb-2 font-medium">Scan this QR code to share:</p>
+                <div className="bg-white p-4 rounded-lg inline-block">
+                  <QRCodeSVG
+                    value={`${window.location.origin}/${slug}`}
+                    size={150}
+                    level="H"
+                    includeMargin
+                    className="rounded"
+                  />
+                </div>
+                <div className="mt-2">
+                  <button
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(`${window.location.origin}/${slug}`);
+                        alert('Link copied to clipboard!');
+                      } catch (err) {
+                        console.error('Failed to copy URL:', err);
+                      }
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                  >
+                    Copy Link
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -285,33 +299,4 @@ export default function PublicLinktreeClientWrapper({ slug }: { slug: string }) 
       </div>
     </div>
   );
-}
-
-// Replace the placeholder components with proper implementations
-const QRCode = ({ url }: { url: string }) => {
-  return (
-    <div className="text-center">
-      <p className="text-black mb-2">Scan this QR code:</p>
-      <div className="bg-gray-200 p-4 inline-block">
-        <p className="text-xs text-gray-600">[QR Code for {url}]</p>
-      </div>
-    </div>
-  );
-};
-
-const EmbedCode = ({ slug }: { slug: string }) => {
-  const embedCode = `<iframe src="${window.location.origin}/${slug}" width="100%" height="600" frameborder="0"></iframe>`;
-  
-  return (
-    <div className="bg-gray-800 p-3 rounded">
-      <p className="text-white text-sm mb-2">Copy this code to embed your Linktree:</p>
-      <textarea 
-        className="w-full p-2 text-xs bg-gray-900 text-white rounded" 
-        rows={3} 
-        readOnly 
-        value={embedCode}
-        onClick={(e) => (e.target as HTMLTextAreaElement).select()}
-      />
-    </div>
-  );
-}; 
+} 
